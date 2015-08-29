@@ -3,7 +3,7 @@
 /**
  * Plugin Name: APCu Object Cache Backend
  * Description: APCu backend for the WordPress Object Cache.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Pierre Schmitz
  * Author URI: https://pierre-schmitz.com/
  * Plugin URI: https://wordpress.org/extend/plugins/apcu/
@@ -84,25 +84,25 @@ function wp_cache_set($key, $data, $group = '', $expire = 0) {
 function wp_cache_switch_to_blog($blog_id) {
 	global $wp_object_cache;
 
-	return $wp_object_cache->switch_to_blog($blog_id);
+	$wp_object_cache->switch_to_blog($blog_id);
 }
 
 function wp_cache_add_global_groups($groups) {
 	global $wp_object_cache;
 
-	return $wp_object_cache->add_global_groups($groups);
+	$wp_object_cache->add_global_groups($groups);
 }
 
 function wp_cache_add_non_persistent_groups($groups) {
 	global $wp_object_cache;
 
-	return $wp_object_cache->wp_cache_add_non_persistent_groups($groups);
+	$wp_object_cache->wp_cache_add_non_persistent_groups($groups);
 }
 
 function wp_cache_reset() {
 	global $wp_object_cache;
 
-	return $wp_object_cache->reset();
+	$wp_object_cache->reset();
 }
 
 class APCu_Object_Cache {
@@ -331,5 +331,3 @@ class APCu_Object_Cache {
 }
 
 }
-
-?>

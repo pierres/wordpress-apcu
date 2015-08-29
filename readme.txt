@@ -1,11 +1,11 @@
 === APCu Object Cache Backend ===
 Contributors: pierreschmitz
 Donate link: https://pierre-schmitz.com
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 3.3.0
-Tested up to: 4.2
+Tested up to: 4.3
 Tags: apcu, apc, backend, cache, object cache, batcache, performance, speed
 
 An object-cache implementation using the APCu extension.
@@ -28,9 +28,12 @@ This implementation uses [APCu](http://pecl.php.net/package/APCu)'s variable cac
 == Frequently Asked Questions ==
 
 = "Cannot redeclare wp_cache_add()..." =
-This error indicates that you likely have two copies of the object cache installed. Make sure you have put the file object-cache.php into your `/wp-content/` directory only. Do not upload it to the `/wp-content/plugins` direcotry or any subdirectory like `/wp-content/plugins/apcu`. The `APCu Object Cache Backend` is not a regular WordPress plugin but a `Drop-in`. Terefore you cannot store it into the `plugins` direcotry.
+This error indicates that you likely have two copies of the object cache installed. Make sure you have put the file object-cache.php into your `/wp-content/` directory only. Do not upload it to the `/wp-content/plugins` directory or any subdirectory like `/wp-content/plugins/apcu`. The `APCu Object Cache Backend` is not a regular WordPress plugin but a `Drop-in`. Therefore you cannot store it into the `plugins` directory.
 
 == Changelog ==
+
+= 1.0.1 =
+* WordPress 4.3 support
 
 = 1.0.0 =
 * initial version

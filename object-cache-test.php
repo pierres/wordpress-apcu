@@ -215,6 +215,11 @@ class ObjectCacheTest extends PHPUnit_Framework_TestCase
      */
     public function test_wp_cache_add_non_persistent_groups($data)
     {
+        if ($GLOBALS['wp_object_cache'] instanceof WP_Object_Cache) {
+            $this->markTestSkipped('Test Skipped for In Memory Cache implementation');
+            return;
+        }
+
         $key = 'foo';
 
         $this->assertNull(wp_cache_add_non_persistent_groups('temp'));
@@ -222,7 +227,7 @@ class ObjectCacheTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($data, wp_cache_get($key, 'temp'));
         $this->assertTrue(wp_cache_add($key, $data, 'group'));
         $this->assertEquals($data, wp_cache_get($key, 'group'));
-        // Re-init the cache. This deletes the local cache but keeps the persitent one
+        // Re-init the cache. This deletes the local cache but keeps the persistent one
         wp_cache_init();
         $this->assertFalse(wp_cache_get($key, 'temp'));
         $this->assertEquals($data, wp_cache_get($key, 'group'));
