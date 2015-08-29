@@ -5,6 +5,6 @@ php:
   - 5.6
 
 before_script:
-   - pecl config-set preferred_state beta
-   - printf "yes\n" | pecl install apcu 
+   - printf "yes\n" | pecl install apcu
+   - echo "apc.enable_cli=1" > apcu.ini
    - phpenv config-add apcu.ini
