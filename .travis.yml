@@ -17,8 +17,8 @@ install:
   - composer install
 
 before_script:
-  - printf "yes\n" | pecl install apcu-${APCU_VERSION}
-  - printf "apc.enable_cli=1" > apcu.ini
+  - printf "yes\nno\n" | pecl install apcu-${APCU_VERSION}
+  - printf "extension=apcu.so\napc.enable_cli=1" > apcu.ini
   - phpenv config-add apcu.ini
 
 script:
