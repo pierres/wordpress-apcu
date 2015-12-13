@@ -1,18 +1,23 @@
 language: php
 
-php:
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
+matrix:
+  include:
+    - php: 7.0
+      env: APCU_VERSION=5.1.0
+    - php: 5.6
+      env: APCU_VERSION=4.0.8
+    - php: 5.5
+      env: APCU_VERSION=4.0.8
+    - php: 5.4
+      env: APCU_VERSION=4.0.8
+    - php: 5.3
+      env: APCU_VERSION=4.0.8
 
 install:
   - composer install
 
 before_script:
-  - pecl config-set preferred_state beta
-  - printf "yes\n" | pecl install apcu
+  - printf "yes\n" | pecl install apcu-${APCU_VERSION}
   - printf "apc.enable_cli=1" > apcu.ini
   - phpenv config-add apcu.ini
 
