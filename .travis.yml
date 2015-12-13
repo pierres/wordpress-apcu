@@ -3,15 +3,15 @@ language: php
 matrix:
   include:
     - php: 7.0
-      env: APCU_VERSION=5.1.0
+      env: APCU_VERSION=5.1.2
     - php: 5.6
-      env: APCU_VERSION=4.0.8
+      env: APCU_VERSION=4.0.10
     - php: 5.5
-      env: APCU_VERSION=4.0.8
+      env: APCU_VERSION=4.0.10
     - php: 5.4
-      env: APCU_VERSION=4.0.8
+      env: APCU_VERSION=4.0.10
     - php: 5.3
-      env: APCU_VERSION=4.0.8
+      env: APCU_VERSION=4.0.10
 
 install:
   - composer install
