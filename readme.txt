@@ -5,7 +5,7 @@ Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 3.3.0
-Tested up to: 4.4
+Tested up to: 4.5
 Tags: apcu, apc, backend, cache, object cache, batcache, performance, speed
 
 An object-cache implementation using the APCu extension.
