@@ -11,7 +11,7 @@
 
 if (function_exists( 'wp_cache_add')) {
 	// Regular die, not wp_die(), because it gets sandboxed and shown in a small iframe
-	die('<strong>ERROR:</strong> This is <em>not</em> a plugin, and it should not be activated as one.<br /><br />Instead, <code>' . str_replace( $_SERVER['DOCUMENT_ROOT'], '', __FILE__ ) . '</code> must be moved to <code>' . str_replace( $_SERVER['DOCUMENT_ROOT'], '', trailingslashit( WP_CONTENT_DIR ) ) . 'object-cache.php</code>' );
+	die('<strong>ERROR:</strong> This is <em>not</em> a plugin, and it should not be activated as one.<br /><br />Instead, <code>' . str_replace( $_SERVER['DOCUMENT_ROOT'], '', __FILE__ ) . '</code> must be moved to <code>' . str_replace( $_SERVER['DOCUMENT_ROOT'], '', WP_CONTENT_DIR . '/object-cache.php</code>' );
 } else {
 
 function wp_cache_add($key, $data, $group = '', $expire = 0) {
