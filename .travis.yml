@@ -15,8 +15,10 @@ install:
   - composer install
 
 before_script:
+  - ls -l $(php -r 'echo ini_get("extension_dir");')
+  - rm -vf $(php -r 'echo ini_get("extension_dir");')/apcu.so
   - printf "yes\nno\n" | pecl install apcu-${APCU_VERSION}
-  - printf "extension=apcu.so\napc.enable_cli=1" > apcu.ini
+  - printf "apc.enable_cli=1" > apcu-cli.ini
   - phpenv config-add apcu.ini
 
 script:
