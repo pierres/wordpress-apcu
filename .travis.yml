@@ -15,7 +15,7 @@ install:
   - composer install
 
 before_script:
-  - echo "extensions: $(php -r 'echo ini_get("extension_dir");')"
+  - /bin/echo extensions: $(php -r 'echo ini_get("extension_dir");')
   - ls -l $(php -r 'echo ini_get("extension_dir");')
   - rm -vf $(php -r 'echo ini_get("extension_dir");')/apcu.so
   - printf "yes\nno\n" | pecl install apcu-${APCU_VERSION}
