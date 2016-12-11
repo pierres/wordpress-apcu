@@ -3,7 +3,7 @@
 /**
  * Plugin Name: APCu Object Cache Backend
  * Description: APCu backend for the WordPress Object Cache.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Pierre Schmitz
  * Author URI: https://pierre-schmitz.com/
  * Plugin URI: https://wordpress.org/plugins/apcu/
