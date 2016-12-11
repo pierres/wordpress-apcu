@@ -115,10 +115,10 @@ class APCu_Object_Cache {
 	private $blog_prefix = '';
 
 	public function __construct() {
-		global $table_prefix, $blog_id;
+		global $table_prefix;
 
 		$this->multisite = is_multisite();
-		$this->blog_prefix =  $this->multisite ? intval($blog_id) : '';
+		$this->blog_prefix =  $this->multisite ? get_current_blog_id().':' : '';
 		$this->prefix = DB_HOST.'.'.DB_NAME.'.'.$table_prefix;
 	}
 
@@ -333,7 +333,7 @@ class APCu_Object_Cache {
 	}
 
 	public function switch_to_blog($blog_id) {
-		$this->blog_prefix = $this->multisite ? intval($blog_id) : '';
+		$this->blog_prefix = $this->multisite ? $blog_id.':' : '';
 	}
 
 }

@@ -4,7 +4,7 @@
  * This is a PHPUnit test class.
  */
 
-global $wp_object_cache, $table_prefix, $blog_id, $multisite;
+global $wp_object_cache, $table_prefix, $multisite;
 !defined('DB_HOST') && define('DB_HOST', 'localhost');
 !defined('DB_NAME') && define('DB_NAME', 'wordpress');
 function is_multisite()
@@ -20,6 +20,11 @@ function wp_suspend_cache_addition()
 
 function _deprecated_function()
 {
+}
+
+function get_current_blog_id()
+{
+    return 0;
 }
 
 require(__DIR__ . '/object-cache.php');
