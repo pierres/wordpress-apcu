@@ -6,10 +6,10 @@
  * Version: 1.0.2
  * Author: Pierre Schmitz
  * Author URI: https://pierre-schmitz.com/
- * Plugin URI: https://wordpress.org/extend/plugins/apcu/
+ * Plugin URI: https://wordpress.org/plugins/apcu/
  */
 
-if (function_exists( 'wp_cache_add')) {
+if (function_exists('wp_cache_add')) {
 	// Regular die, not wp_die(), because it gets sandboxed and shown in a small iframe
 	die('<strong>ERROR:</strong> This is <em>not</em> a plugin, and it should not be activated as one.<br /><br />Instead, <code>'
 	    . str_replace( $_SERVER['DOCUMENT_ROOT'], '', __FILE__ )
@@ -17,7 +17,7 @@ if (function_exists( 'wp_cache_add')) {
 	    . str_replace( $_SERVER['DOCUMENT_ROOT'], '', WP_CONTENT_DIR . '/' )
 	    . 'object-cache.php</code>'
 	);
-} else {
+}
 
 function wp_cache_add($key, $data, $group = '', $expire = 0) {
 	global $wp_object_cache;
@@ -62,6 +62,7 @@ function wp_cache_incr($key, $offset = 1, $group = '') {
 function wp_cache_init() {
 	if (!function_exists('apcu_fetch')) {
 		$error = 'APCu is not configured correctly. Please refer to https://wordpress.org/extend/plugins/apcu/installation/ for instructions.';
+
 		if (function_exists('wp_die')) {
 			wp_die($error, 'APCu Object Cache', array('response' => 503));
 		} else {
@@ -69,9 +70,9 @@ function wp_cache_init() {
 			header('Content-Type: text/plain; charset=UTF-8');
 			die($error);
 		}
-	} else {
-		$GLOBALS['wp_object_cache'] = new APCu_Object_Cache();
 	}
+
+	$GLOBALS['wp_object_cache'] = new APCu_Object_Cache();
 }
 
 function wp_cache_replace($key, $data, $group = '', $expire = 0) {
@@ -340,7 +341,5 @@ class APCu_Object_Cache {
 	public function switch_to_blog($blog_id) {
 		$this->blog_prefix = $this->multisite ? $blog_id.':' : '';
 	}
-
-}
 
 }
