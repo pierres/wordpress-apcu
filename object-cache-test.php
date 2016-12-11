@@ -7,6 +7,7 @@
 global $wp_object_cache, $table_prefix, $multisite;
 !defined('DB_HOST') && define('DB_HOST', 'localhost');
 !defined('DB_NAME') && define('DB_NAME', 'wordpress');
+!defined('WP_CONTENT_DIR') && define('WP_CONTENT_DIR', '.');
 function is_multisite()
 {
     global $multisite;
