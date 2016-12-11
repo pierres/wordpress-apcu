@@ -11,12 +11,12 @@
 
 if (function_exists('wp_cache_add')) {
 	// Regular die, not wp_die(), because it gets sandboxed and shown in a small iframe
-	die('<strong>ERROR:</strong> This is <em>not</em> a plugin, and it should not be activated as one.<br /><br />Instead, <code>'
+	echo '<strong>ERROR:</strong> This is <em>not</em> a plugin, and it should not be activated as one.<br /><br />Instead, <code>'
 	    . str_replace( $_SERVER['DOCUMENT_ROOT'], '', __FILE__ )
 	    . '</code> must be moved to <code>'
 	    . str_replace( $_SERVER['DOCUMENT_ROOT'], '', WP_CONTENT_DIR . '/' )
-	    . 'object-cache.php</code>'
-	);
+	    . 'object-cache.php</code>';
+	exit(1);
 }
 
 function wp_cache_add($key, $data, $group = '', $expire = 0) {
@@ -68,8 +68,9 @@ function wp_cache_init() {
 		} else {
 			header('HTTP/1.0 503 Service Unavailable');
 			header('Content-Type: text/plain; charset=UTF-8');
-			die($error);
+			echo $error;
 		}
+        exit(1);
 	}
 
 	$GLOBALS['wp_object_cache'] = new APCu_Object_Cache();
