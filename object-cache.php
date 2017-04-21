@@ -17,99 +17,99 @@ if ( function_exists( 'wp_cache_add' ) ) {
 	    . str_replace( $_SERVER['DOCUMENT_ROOT'], '', WP_CONTENT_DIR . '/' )
 	    . 'object-cache.php</code>';
 	exit( 1 );
-} else { // We cannot redeclare these functions if cache.php was loaded. Declaration must be kept dynamic.
-	function wp_cache_add( $key, $data, $group = '', $expire = 0 ) {
-		global $wp_object_cache;
+}
 
-		return $wp_object_cache->add( $key, $data, $group, (int) $expire );
-	}
+function wp_cache_add( $key, $data, $group = '', $expire = 0 ) {
+	global $wp_object_cache;
 
-	function wp_cache_close() {
-		return true;
-	}
+	return $wp_object_cache->add( $key, $data, $group, (int) $expire );
+}
 
-	function wp_cache_decr( $key, $offset = 1, $group = '' ) {
-		global $wp_object_cache;
+function wp_cache_close() {
+	return true;
+}
 
-		return $wp_object_cache->decr( $key, $offset, $group );
-	}
+function wp_cache_decr( $key, $offset = 1, $group = '' ) {
+	global $wp_object_cache;
 
-	function wp_cache_delete( $key, $group = '' ) {
-		global $wp_object_cache;
+	return $wp_object_cache->decr( $key, $offset, $group );
+}
 
-		return $wp_object_cache->delete( $key, $group );
-	}
+function wp_cache_delete( $key, $group = '' ) {
+	global $wp_object_cache;
 
-	function wp_cache_flush() {
-		global $wp_object_cache;
+	return $wp_object_cache->delete( $key, $group );
+}
 
-		return $wp_object_cache->flush();
-	}
+function wp_cache_flush() {
+	global $wp_object_cache;
 
-	function wp_cache_get( $key, $group = '', $force = false, &$found = null ) {
-		global $wp_object_cache;
+	return $wp_object_cache->flush();
+}
 
-		return $wp_object_cache->get( $key, $group, $force, $found );
-	}
+function wp_cache_get( $key, $group = '', $force = false, &$found = null ) {
+	global $wp_object_cache;
 
-	function wp_cache_incr( $key, $offset = 1, $group = '' ) {
-		global $wp_object_cache;
+	return $wp_object_cache->get( $key, $group, $force, $found );
+}
 
-		return $wp_object_cache->incr( $key, $offset, $group );
-	}
+function wp_cache_incr( $key, $offset = 1, $group = '' ) {
+	global $wp_object_cache;
 
-	function wp_cache_init() {
-		if ( ! function_exists( 'apcu_fetch' ) ) {
-			$error = 'APCu is not configured correctly. Please refer to https://wordpress.org/extend/plugins/apcu/installation/ for instructions.';
+	return $wp_object_cache->incr( $key, $offset, $group );
+}
 
-			if ( function_exists( 'wp_die' ) ) {
-				wp_die( $error, 'APCu Object Cache', array( 'response' => 503 ) );
-			} else {
-				header( 'HTTP/1.0 503 Service Unavailable' );
-				header( 'Content-Type: text/plain; charset=UTF-8' );
-				echo $error;
-			}
-			exit( 1 );
+function wp_cache_init() {
+	if ( ! function_exists( 'apcu_fetch' ) ) {
+		$error = 'APCu is not configured correctly. Please refer to https://wordpress.org/extend/plugins/apcu/installation/ for instructions.';
+
+		if ( function_exists( 'wp_die' ) ) {
+			wp_die( $error, 'APCu Object Cache', array( 'response' => 503 ) );
+		} else {
+			header( 'HTTP/1.0 503 Service Unavailable' );
+			header( 'Content-Type: text/plain; charset=UTF-8' );
+			echo $error;
 		}
-
-		$GLOBALS['wp_object_cache'] = new APCu_Object_Cache();
+		exit( 1 );
 	}
 
-	function wp_cache_replace( $key, $data, $group = '', $expire = 0 ) {
-		global $wp_object_cache;
+	$GLOBALS['wp_object_cache'] = new APCu_Object_Cache();
+}
 
-		return $wp_object_cache->replace( $key, $data, $group, (int) $expire );
-	}
+function wp_cache_replace( $key, $data, $group = '', $expire = 0 ) {
+	global $wp_object_cache;
 
-	function wp_cache_set( $key, $data, $group = '', $expire = 0 ) {
-		global $wp_object_cache;
+	return $wp_object_cache->replace( $key, $data, $group, (int) $expire );
+}
 
-		return $wp_object_cache->set( $key, $data, $group, (int) $expire );
-	}
+function wp_cache_set( $key, $data, $group = '', $expire = 0 ) {
+	global $wp_object_cache;
 
-	function wp_cache_switch_to_blog( $blog_id ) {
-		global $wp_object_cache;
+	return $wp_object_cache->set( $key, $data, $group, (int) $expire );
+}
 
-		$wp_object_cache->switch_to_blog( $blog_id );
-	}
+function wp_cache_switch_to_blog( $blog_id ) {
+	global $wp_object_cache;
 
-	function wp_cache_add_global_groups( $groups ) {
-		global $wp_object_cache;
+	$wp_object_cache->switch_to_blog( $blog_id );
+}
 
-		$wp_object_cache->add_global_groups( $groups );
-	}
+function wp_cache_add_global_groups( $groups ) {
+	global $wp_object_cache;
 
-	function wp_cache_add_non_persistent_groups( $groups ) {
-		global $wp_object_cache;
+	$wp_object_cache->add_global_groups( $groups );
+}
 
-		$wp_object_cache->wp_cache_add_non_persistent_groups( $groups );
-	}
+function wp_cache_add_non_persistent_groups( $groups ) {
+	global $wp_object_cache;
 
-	function wp_cache_reset() {
-		global $wp_object_cache;
+	$wp_object_cache->wp_cache_add_non_persistent_groups( $groups );
+}
 
-		$wp_object_cache->reset();
-	}
+function wp_cache_reset() {
+	global $wp_object_cache;
+
+	$wp_object_cache->reset();
 }
 
 class APCu_Object_Cache {
