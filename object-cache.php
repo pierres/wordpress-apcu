@@ -12,10 +12,10 @@
 if ( function_exists( 'wp_cache_add' ) ) {
 	// Regular die, not wp_die(), because it gets sandboxed and shown in a small iframe
 	echo '<strong>ERROR:</strong> This is <em>not</em> a plugin, and it should not be activated as one.<br /><br />Instead, <code>'
-	    . str_replace( $_SERVER['DOCUMENT_ROOT'], '', __FILE__ )
-	    . '</code> must be moved to <code>'
-	    . str_replace( $_SERVER['DOCUMENT_ROOT'], '', WP_CONTENT_DIR . '/' )
-	    . 'object-cache.php</code>';
+		. str_replace( $_SERVER['DOCUMENT_ROOT'], '', __FILE__ )
+		. '</code> must be moved to <code>'
+		. str_replace( $_SERVER['DOCUMENT_ROOT'], '', WP_CONTENT_DIR . '/' )
+		. 'object-cache.php</code>';
 	exit( 1 );
 } else { // We cannot redeclare these functions if cache.php was loaded. Declaration must be kept dynamic.
 	function wp_cache_add( $key, $data, $group = '', $expire = 0 ) {
