@@ -2,6 +2,8 @@ language: php
 
 matrix:
   include:
+    - php: 7.2
+      env: APCU_VERSION=5.1.8
     - php: 7.1
       env: APCU_VERSION=5.1.8
     - php: 7.0
