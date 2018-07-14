@@ -250,9 +250,7 @@ class APCu_Object_Cache {
 		} else {
 			$value = apcu_fetch( $key, $found );
 			if ( $found ) {
-				if ( $force ) {
-					$this->local_cache[ $group ][ $key ] = $value;
-				}
+				$this->local_cache[ $group ][ $key ] = $value;
 				return $value;
 			} else {
 				return false;
