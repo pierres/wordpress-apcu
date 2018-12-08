@@ -3,9 +3,9 @@ language: php
 matrix:
   include:
     - php: 7.1
-      env: APCU_VERSION=5.1.7
+      env: APCU_VERSION=5.1.8
     - php: 7.0
-      env: APCU_VERSION=5.1.7
+      env: APCU_VERSION=5.1.8
     - php: 5.6
       env: APCU_VERSION=4.0.11
 
