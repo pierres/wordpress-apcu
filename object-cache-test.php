@@ -28,7 +28,7 @@ require( __DIR__ . '/object-cache.php' );
 
 class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 
-    // @codingStandardsIgnoreLine
+	// @codingStandardsIgnoreLine
 	protected $backupGlobalsBlacklist = array( 'multisite' );
 
 	public function setUp() {
@@ -43,6 +43,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @param mixed $data
+	 *
 	 * @dataProvider getTestData
 	 */
 	public function test_wp_cache_add( $data ) {
@@ -74,6 +75,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @param mixed $data
+	 *
 	 * @dataProvider getTestData
 	 */
 	public function test_wp_cache_delete( $data ) {
@@ -88,6 +90,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @param mixed $data
+	 *
 	 * @dataProvider getTestData
 	 */
 	public function test_wp_cache_flush( $data ) {
@@ -101,6 +104,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @param mixed $data
+	 *
 	 * @dataProvider getTestData
 	 */
 	public function test_wp_cache_get( $data ) {
@@ -126,12 +130,13 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( 13, wp_cache_incr( $key, 3, $group ) );
 		$this->assertEquals( 14, wp_cache_incr( $key, 1, $group ) );
 		$this->assertEquals( 14, wp_cache_get( $key, $group ) );
-		$this->assertEquals( 0, wp_cache_incr( $key, -45, $group ) );
+		$this->assertEquals( 0, wp_cache_incr( $key, - 45, $group ) );
 		$this->assertEquals( 0, wp_cache_get( $key, $group ) );
 	}
 
 	/**
 	 * @param mixed $data
+	 *
 	 * @dataProvider getTestData
 	 */
 	public function test_wp_cache_replace( $data ) {
@@ -147,6 +152,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @param mixed $data
+	 *
 	 * @dataProvider getTestData
 	 */
 	public function test_wp_cache_set( $data ) {
@@ -159,6 +165,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @param mixed $data
+	 *
 	 * @dataProvider getTestData
 	 */
 	public function test_wp_cache_switch_to_blog( $data ) {
@@ -179,6 +186,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @param mixed $data
+	 *
 	 * @dataProvider getTestData
 	 */
 	public function test_wp_cache_add_global_groups( $data ) {
@@ -200,11 +208,13 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @param mixed $data
+	 *
 	 * @dataProvider getTestData
 	 */
 	public function test_wp_cache_add_non_persistent_groups( $data ) {
 		if ( $GLOBALS['wp_object_cache'] instanceof WP_Object_Cache ) {
 			$this->markTestSkipped( 'Test Skipped for In Memory Cache implementation' );
+
 			return;
 		}
 
@@ -257,7 +267,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 			array( 1.2e3 ),
 			array( 7E-10 ),
 			array( 0123 ),
-			array( -123 ),
+			array( - 123 ),
 			array( 0x1A ),
 			array( array( 'a', 'b' ) ),
 			array( array( 'foo' => array( 'a', 'b' ) ) ),
