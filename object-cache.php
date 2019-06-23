@@ -3,7 +3,7 @@
 /**
  * Plugin Name: APCu Object Cache Backend
  * Description: APCu backend for the WordPress Object Cache.
- * Version: 1.0.3
+ * Version: 2.0.0
  * Author: Pierre Schmitz
  * Author URI: https://pierre-schmitz.com/
  * Plugin URI: https://wordpress.org/plugins/apcu/
@@ -63,7 +63,7 @@ if ( function_exists( 'wp_cache_add' ) ) {
 			$error = 'APCu is not configured correctly. Please refer to https://wordpress.org/extend/plugins/apcu/installation/ for instructions.';
 
 			if ( function_exists( 'wp_die' ) ) {
-				wp_die( $error, 'APCu Object Cache', array( 'response' => 503 ) );
+				wp_die( $error, 'APCu Object Cache', [ 'response' => 503 ] );
 			} else {
 				header( 'HTTP/1.0 503 Service Unavailable' );
 				header( 'Content-Type: text/plain; charset=UTF-8' );
@@ -113,12 +113,18 @@ if ( function_exists( 'wp_cache_add' ) ) {
 
 class APCu_Object_Cache {
 
-	private $prefix                = '';
-	private $local_cache           = array();
-	private $global_groups         = array();
-	private $non_persistent_groups = array();
-	private $multisite             = false;
-	private $blog_prefix           = '';
+	/** @var string */
+	private $prefix = '';
+	/** @var array */
+	private $local_cache = [];
+	/** @var array */
+	private $global_groups = [];
+	/** @var array */
+	private $non_persistent_groups = [];
+	/** @var bool */
+	private $multisite = false;
+	/** @var string */
+	private $blog_prefix = '';
 
 	public function __construct() {
 		global $table_prefix;
@@ -128,7 +134,15 @@ class APCu_Object_Cache {
 		$this->prefix      = DB_HOST . '.' . DB_NAME . '.' . $table_prefix;
 	}
 
-	public function add( $key, $data, $group = 'default', $expire = 0 ) {
+	/**
+	 * @param string $key
+	 * @param        $data
+	 * @param string $group
+	 * @param int    $expire
+	 *
+	 * @return bool
+	 */
+	public function add( string $key, $data, string $group = 'default', int $expire = 0 ): bool {
 		$group = $this->get_group( $group );
 		$key   = $this->get_key( $group, $key );
 
@@ -156,11 +170,22 @@ class APCu_Object_Cache {
 		return true;
 	}
 
-	private function get_group( $group ) {
+	/**
+	 * @param string $group
+	 *
+	 * @return string
+	 */
+	private function get_group( string $group ): string {
 		return empty( $group ) ? 'default' : $group;
 	}
 
-	private function get_key( $group, $key ) {
+	/**
+	 * @param string $group
+	 * @param string $key
+	 *
+	 * @return string
+	 */
+	private function get_key( string $group, string $key ): string {
 		if ( $this->multisite && ! isset( $this->global_groups[ $group ] ) ) {
 			return $this->prefix . '.' . $group . '.' . $this->blog_prefix . ':' . $key;
 		} else {
@@ -168,7 +193,10 @@ class APCu_Object_Cache {
 		}
 	}
 
-	public function add_global_groups( $groups ) {
+	/**
+	 * @param string $groups
+	 */
+	public function add_global_groups( string $groups ): void {
 		if ( is_array( $groups ) ) {
 			foreach ( $groups as $group ) {
 				$this->global_groups[ $group ] = true;
@@ -178,7 +206,10 @@ class APCu_Object_Cache {
 		}
 	}
 
-	public function wp_cache_add_non_persistent_groups( $groups ) {
+	/**
+	 * @param string $groups
+	 */
+	public function wp_cache_add_non_persistent_groups( string $groups ): void {
 		if ( is_array( $groups ) ) {
 			foreach ( $groups as $group ) {
 				$this->non_persistent_groups[ $group ] = true;
@@ -188,7 +219,14 @@ class APCu_Object_Cache {
 		}
 	}
 
-	public function decr( $key, $offset = 1, $group = 'default' ) {
+	/**
+	 * @param string $key
+	 * @param int    $offset
+	 * @param string $group
+	 *
+	 * @return int
+	 */
+	public function decr( string $key, int $offset = 1, string $group = 'default' ): int {
 		if ( $offset < 0 ) {
 			return $this->incr( $key, abs( $offset ), $group );
 		}
@@ -216,7 +254,14 @@ class APCu_Object_Cache {
 		}
 	}
 
-	public function incr( $key, $offset = 1, $group = 'default' ) {
+	/**
+	 * @param string $key
+	 * @param int    $offset
+	 * @param string $group
+	 *
+	 * @return int
+	 */
+	public function incr( string $key, int $offset = 1, string $group = 'default' ): int {
 		if ( $offset < 0 ) {
 			return $this->decr( $key, abs( $offset ), $group );
 		}
@@ -244,7 +289,14 @@ class APCu_Object_Cache {
 		}
 	}
 
-	public function delete( $key, $group = 'default', $force = false ) {
+	/**
+	 * @param string $key
+	 * @param string $group
+	 * @param bool   $force
+	 *
+	 * @return bool
+	 */
+	public function delete( string $key, string $group = 'default', bool $force = false ): bool {
 		$group = $this->get_group( $group );
 		$key   = $this->get_key( $group, $key );
 
@@ -256,7 +308,15 @@ class APCu_Object_Cache {
 		return true;
 	}
 
-	public function get( $key, $group = 'default', $force = false, &$found = null ) {
+	/**
+	 * @param string    $key
+	 * @param string    $group
+	 * @param bool      $force
+	 * @param bool|null $found
+	 *
+	 * @return bool|mixed
+	 */
+	public function get( string $key, string $group = 'default', bool $force = false, bool &$found = null ) {
 		$group = $this->get_group( $group );
 		$key   = $this->get_key( $group, $key );
 
@@ -285,7 +345,15 @@ class APCu_Object_Cache {
 		}
 	}
 
-	public function replace( $key, $data, $group = 'default', $expire = 0 ) {
+	/**
+	 * @param string $key
+	 * @param        $data
+	 * @param string $group
+	 * @param int    $expire
+	 *
+	 * @return bool
+	 */
+	public function replace( string $key, $data, string $group = 'default', int $expire = 0 ): bool {
 		$group = $this->get_group( $group );
 		$key   = $this->get_key( $group, $key );
 
@@ -309,21 +377,32 @@ class APCu_Object_Cache {
 		return true;
 	}
 
-	public function reset() {
+	public function reset(): void {
 		// This function is deprecated as of WordPress 3.5
 		// Be safe and flush the cache if this function is still used
 		$this->flush();
 	}
 
-	public function flush() {
-		$this->local_cache = array();
+	/**
+	 * @return bool
+	 */
+	public function flush(): bool {
+		$this->local_cache = [];
 		// TODO: only clear our own entries
 		apcu_clear_cache();
 
 		return true;
 	}
 
-	public function set( $key, $data, $group = 'default', $expire = 0 ) {
+	/**
+	 * @param string $key
+	 * @param        $data
+	 * @param string $group
+	 * @param int    $expire
+	 *
+	 * @return bool
+	 */
+	public function set( string $key, $data, string $group = 'default', int $expire = 0 ): bool {
 		$group = $this->get_group( $group );
 		$key   = $this->get_key( $group, $key );
 
@@ -340,14 +419,16 @@ class APCu_Object_Cache {
 		return true;
 	}
 
-	public function stats() {
+	public function stats(): void {
 		// Only implemented because the default cache class provides this.
 		// This method is never called.
 		echo '';
 	}
 
-	public function switch_to_blog( $blog_id ) {
+	/**
+	 * @param int $blog_id
+	 */
+	public function switch_to_blog( int $blog_id ): void {
 		$this->blog_prefix = $this->multisite ? $blog_id . ':' : '';
 	}
-
 }

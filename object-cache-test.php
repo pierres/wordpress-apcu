@@ -29,7 +29,7 @@ require( __DIR__ . '/object-cache.php' );
 class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 
 	// @codingStandardsIgnoreLine
-	protected $backupGlobalsBlacklist = array( 'multisite' );
+	protected $backupGlobalsBlacklist = [ 'multisite' ];
 
 	public function setUp() {
 		wp_cache_init();
@@ -44,7 +44,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * @param mixed $data
 	 *
-	 * @dataProvider getTestData
+	 * @dataProvider provideTestData
 	 */
 	public function test_wp_cache_add( $data ) {
 		$group = 'group';
@@ -76,7 +76,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * @param mixed $data
 	 *
-	 * @dataProvider getTestData
+	 * @dataProvider provideTestData
 	 */
 	public function test_wp_cache_delete( $data ) {
 		$group = 'group';
@@ -91,7 +91,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * @param mixed $data
 	 *
-	 * @dataProvider getTestData
+	 * @dataProvider provideTestData
 	 */
 	public function test_wp_cache_flush( $data ) {
 		$group = 'group';
@@ -105,7 +105,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * @param mixed $data
 	 *
-	 * @dataProvider getTestData
+	 * @dataProvider provideTestData
 	 */
 	public function test_wp_cache_get( $data ) {
 		// TODO: test force parameter
@@ -137,7 +137,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * @param mixed $data
 	 *
-	 * @dataProvider getTestData
+	 * @dataProvider provideTestData
 	 */
 	public function test_wp_cache_replace( $data ) {
 		$group = 'group';
@@ -153,7 +153,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * @param mixed $data
 	 *
-	 * @dataProvider getTestData
+	 * @dataProvider provideTestData
 	 */
 	public function test_wp_cache_set( $data ) {
 		$group = 'group';
@@ -166,7 +166,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * @param mixed $data
 	 *
-	 * @dataProvider getTestData
+	 * @dataProvider provideTestData
 	 */
 	public function test_wp_cache_switch_to_blog( $data ) {
 		global $multisite;
@@ -187,7 +187,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * @param mixed $data
 	 *
-	 * @dataProvider getTestData
+	 * @dataProvider provideTestData
 	 */
 	public function test_wp_cache_add_global_groups( $data ) {
 		global $multisite;
@@ -209,7 +209,7 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * @param mixed $data
 	 *
-	 * @dataProvider getTestData
+	 * @dataProvider provideTestData
 	 */
 	public function test_wp_cache_add_non_persistent_groups( $data ) {
 		if ( $GLOBALS['wp_object_cache'] instanceof WP_Object_Cache ) {
@@ -259,23 +259,23 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * @return array
 	 */
-	public function getTestData() {
-		return array(
-			array( 'foo' ),
-			array( 43 ),
-			array( 1.234 ),
-			array( 1.2e3 ),
-			array( 7E-10 ),
-			array( 0123 ),
-			array( - 123 ),
-			array( 0x1A ),
-			array( array( 'a', 'b' ) ),
-			array( array( 'foo' => array( 'a', 'b' ) ) ),
-			array( null ),
-			array( false ),
-			array( true ),
-			array( new ArrayObject( array( 'foo', 'bar' ) ) ),
-			array( new StdClass() ),
-		);
+	public function provideTestData(): array {
+		return [
+			[ 'foo' ],
+			[ 43 ],
+			[ 1.234 ],
+			[ 1.2e3 ],
+			[ 7E-10 ],
+			[ 0123 ],
+			[ - 123 ],
+			[ 0x1A ],
+			[ [ 'a', 'b' ] ],
+			[ [ 'foo' => [ 'a', 'b' ] ] ],
+			[ null ],
+			[ false ],
+			[ true ],
+			[ new ArrayObject( [ 'foo', 'bar' ] ) ],
+			[ new StdClass() ],
+		];
 	}
 }
