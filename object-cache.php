@@ -10,11 +10,13 @@
  */
 
 if ( function_exists( 'wp_cache_add' ) ) {
-	throw new \RuntimeException('<strong>ERROR:</strong> This is <em>not</em> a plugin, and it should not be activated as one.<br /><br />Instead, <code>'
-        . str_replace( $_SERVER['DOCUMENT_ROOT'], '', __FILE__ )
-        . '</code> must be moved to <code>'
-        . str_replace( $_SERVER['DOCUMENT_ROOT'], '', WP_CONTENT_DIR . '/' )
-        . 'object-cache.php</code>');
+	throw new \RuntimeException(
+		'<strong>ERROR:</strong> This is <em>not</em> a plugin, and it should not be activated as one.<br /><br />Instead, <code>'
+		. str_replace( $_SERVER['DOCUMENT_ROOT'], '', __FILE__ )
+		. '</code> must be moved to <code>'
+		. str_replace( $_SERVER['DOCUMENT_ROOT'], '', WP_CONTENT_DIR . '/' )
+		. 'object-cache.php</code>'
+	);
 } else { // We cannot redeclare these functions if cache.php was loaded. Declaration must be kept dynamic.
 	function wp_cache_add( $key, $data, $group = '', $expire = 0 ) {
 		global $wp_object_cache;
@@ -65,7 +67,7 @@ if ( function_exists( 'wp_cache_add' ) ) {
 			} else {
 				header( 'HTTP/1.0 503 Service Unavailable' );
 				header( 'Content-Type: text/plain; charset=UTF-8' );
-                throw new \RuntimeException($error);
+				throw new \RuntimeException( $error );
 			}
 		}
 
@@ -126,18 +128,6 @@ class APCu_Object_Cache {
 		$this->prefix      = DB_HOST . '.' . DB_NAME . '.' . $table_prefix;
 	}
 
-	private function get_group( $group ) {
-		return empty( $group ) ? 'default' : $group;
-	}
-
-	private function get_key( $group, $key ) {
-		if ( $this->multisite && ! isset( $this->global_groups[ $group ] ) ) {
-			return $this->prefix . '.' . $group . '.' . $this->blog_prefix . ':' . $key;
-		} else {
-			return $this->prefix . '.' . $group . '.' . $key;
-		}
-	}
-
 	public function add( $key, $data, $group = 'default', $expire = 0 ) {
 		$group = $this->get_group( $group );
 		$key   = $this->get_key( $group, $key );
@@ -164,6 +154,18 @@ class APCu_Object_Cache {
 		}
 
 		return true;
+	}
+
+	private function get_group( $group ) {
+		return empty( $group ) ? 'default' : $group;
+	}
+
+	private function get_key( $group, $key ) {
+		if ( $this->multisite && ! isset( $this->global_groups[ $group ] ) ) {
+			return $this->prefix . '.' . $group . '.' . $this->blog_prefix . ':' . $key;
+		} else {
+			return $this->prefix . '.' . $group . '.' . $key;
+		}
 	}
 
 	public function add_global_groups( $groups ) {
@@ -206,54 +208,11 @@ class APCu_Object_Cache {
 			$value = apcu_dec( $key, $offset );
 			if ( $value < 0 ) {
 				apcu_store( $key, 0 );
+
 				return 0;
 			}
+
 			return $value;
-		}
-	}
-
-	public function delete( $key, $group = 'default', $force = false ) {
-		$group = $this->get_group( $group );
-		$key   = $this->get_key( $group, $key );
-
-		unset( $this->local_cache[ $group ][ $key ] );
-		if ( ! isset( $this->non_persistent_groups[ $group ] ) ) {
-			return apcu_delete( $key );
-		}
-		return true;
-	}
-
-	public function flush() {
-		$this->local_cache = array();
-		// TODO: only clear our own entries
-		apcu_clear_cache();
-		return true;
-	}
-
-	public function get( $key, $group = 'default', $force = false, &$found = null ) {
-		$group = $this->get_group( $group );
-		$key   = $this->get_key( $group, $key );
-
-		if ( ! $force && isset( $this->local_cache[ $group ][ $key ] ) ) {
-			$found = true;
-			if ( is_object( $this->local_cache[ $group ][ $key ] ) ) {
-				return clone $this->local_cache[ $group ][ $key ];
-			} else {
-				return $this->local_cache[ $group ][ $key ];
-			}
-		} elseif ( isset( $this->non_persistent_groups[ $group ] ) ) {
-			$found = false;
-			return false;
-		} else {
-			$value = apcu_fetch( $key, $found );
-			if ( $found ) {
-				if ( $force ) {
-					$this->local_cache[ $group ][ $key ] = $value;
-				}
-				return $value;
-			} else {
-				return false;
-			}
 		}
 	}
 
@@ -277,9 +236,52 @@ class APCu_Object_Cache {
 			$value = apcu_inc( $key, $offset );
 			if ( $value < 0 ) {
 				apcu_store( $key, 0 );
+
 				return 0;
 			}
+
 			return $value;
+		}
+	}
+
+	public function delete( $key, $group = 'default', $force = false ) {
+		$group = $this->get_group( $group );
+		$key   = $this->get_key( $group, $key );
+
+		unset( $this->local_cache[ $group ][ $key ] );
+		if ( ! isset( $this->non_persistent_groups[ $group ] ) ) {
+			return apcu_delete( $key );
+		}
+
+		return true;
+	}
+
+	public function get( $key, $group = 'default', $force = false, &$found = null ) {
+		$group = $this->get_group( $group );
+		$key   = $this->get_key( $group, $key );
+
+		if ( ! $force && isset( $this->local_cache[ $group ][ $key ] ) ) {
+			$found = true;
+			if ( is_object( $this->local_cache[ $group ][ $key ] ) ) {
+				return clone $this->local_cache[ $group ][ $key ];
+			} else {
+				return $this->local_cache[ $group ][ $key ];
+			}
+		} elseif ( isset( $this->non_persistent_groups[ $group ] ) ) {
+			$found = false;
+
+			return false;
+		} else {
+			$value = apcu_fetch( $key, $found );
+			if ( $found ) {
+				if ( $force ) {
+					$this->local_cache[ $group ][ $key ] = $value;
+				}
+
+				return $value;
+			} else {
+				return false;
+			}
 		}
 	}
 
@@ -311,6 +313,14 @@ class APCu_Object_Cache {
 		// This function is deprecated as of WordPress 3.5
 		// Be safe and flush the cache if this function is still used
 		$this->flush();
+	}
+
+	public function flush() {
+		$this->local_cache = array();
+		// TODO: only clear our own entries
+		apcu_clear_cache();
+
+		return true;
 	}
 
 	public function set( $key, $data, $group = 'default', $expire = 0 ) {
