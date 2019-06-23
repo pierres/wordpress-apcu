@@ -1,47 +1,33 @@
 <?php
 
-/**
- * This is a PHPUnit test class.
- */
-
-global $wp_object_cache, $table_prefix, $multisite, $suspend_cache;
-! defined( 'DB_HOST' ) && define( 'DB_HOST', 'localhost' );
-! defined( 'DB_NAME' ) && define( 'DB_NAME', 'WordPress' );
-! defined( 'WP_CONTENT_DIR' ) && define( 'WP_CONTENT_DIR', '.' );
-function is_multisite() {
-	global $multisite;
-
-	return isset( $multisite ) && $multisite;
-}
-
-function wp_suspend_cache_addition() {
-	global $suspend_cache;
-
-	return (bool) $suspend_cache;
-}
-
-function _deprecated_function() {
-}
-
-function get_current_blog_id() {
-	return 0;
-}
-
-require_once( __DIR__ . '/object-cache.php' );
-
 class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 
-	// @codingStandardsIgnoreLine
-	protected $backupGlobalsBlacklist = [ 'multisite' ];
+	/** @var APCu_Object_Cache */
+	private $object_cache;
 
 	public function setUp() {
-		wp_cache_init();
+		$this->object_cache = $this->create_object_cache();
+	}
+
+	/**
+	 * @param bool $multisite
+	 * @param bool $suspended
+	 *
+	 * @return APCu_Object_Cache
+	 */
+	private function create_object_cache( bool $multisite = false, bool $suspended = false ) {
+		return new APCu_Object_Cache(
+			'',
+			$multisite,
+			0,
+			function () use ( $suspended ) {
+				return $suspended;
+			}
+		);
 	}
 
 	public function tearDown() {
-		global $multisite;
-		$multisite = false;
-		wp_cache_flush();
+		$this->object_cache->flush();
 	}
 
 	/**
@@ -53,10 +39,10 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$group = 'group';
 		$key   = 0;
 
-		$this->assertTrue( wp_cache_add( $key, $data, $group ) );
-		$this->assertEquals( $data, wp_cache_get( $key, $group ) );
-		$this->assertFalse( wp_cache_add( $key, 'test', $group ) );
-		$this->assertEquals( $data, wp_cache_get( $key, $group ) );
+		$this->assertTrue( $this->object_cache->add( $key, $data, $group ) );
+		$this->assertEquals( $data, $this->object_cache->get( $key, $group ) );
+		$this->assertFalse( $this->object_cache->add( $key, 'test', $group ) );
+		$this->assertEquals( $data, $this->object_cache->get( $key, $group ) );
 	}
 
 	public function test_wp_cache_close() {
@@ -67,12 +53,12 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$key   = 'key';
 		$group = 'group';
 
-		$this->assertTrue( wp_cache_add( $key, 10, $group ) );
-		$this->assertEquals( 7, wp_cache_decr( $key, 3, $group ) );
-		$this->assertEquals( 6, wp_cache_decr( $key, 1, $group ) );
-		$this->assertEquals( 6, wp_cache_get( $key, $group ) );
-		$this->assertEquals( 0, wp_cache_decr( $key, 45, $group ) );
-		$this->assertEquals( 0, wp_cache_get( $key, $group ) );
+		$this->assertTrue( $this->object_cache->add( $key, 10, $group ) );
+		$this->assertEquals( 7, $this->object_cache->decr( $key, 3, $group ) );
+		$this->assertEquals( 6, $this->object_cache->decr( $key, 1, $group ) );
+		$this->assertEquals( 6, $this->object_cache->get( $key, $group ) );
+		$this->assertEquals( 0, $this->object_cache->decr( $key, 45, $group ) );
+		$this->assertEquals( 0, $this->object_cache->get( $key, $group ) );
 	}
 
 	/**
@@ -84,10 +70,10 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$group = 'group';
 		$key   = 0;
 
-		$this->assertFalse( wp_cache_delete( $key, $group ) );
-		$this->assertTrue( wp_cache_add( $key, $data, $group ) );
-		$this->assertTrue( wp_cache_delete( $key, $group ) );
-		$this->assertFalse( wp_cache_get( $key, $group ) );
+		$this->assertFalse( $this->object_cache->delete( $key, $group ) );
+		$this->assertTrue( $this->object_cache->add( $key, $data, $group ) );
+		$this->assertTrue( $this->object_cache->delete( $key, $group ) );
+		$this->assertFalse( $this->object_cache->get( $key, $group ) );
 	}
 
 	/**
@@ -99,9 +85,9 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$group = 'group';
 		$key   = 0;
 
-		$this->assertTrue( wp_cache_add( $key, $data, $group ) );
-		$this->assertTrue( wp_cache_flush() );
-		$this->assertFalse( wp_cache_get( $key, $group ) );
+		$this->assertTrue( $this->object_cache->add( $key, $data, $group ) );
+		$this->assertTrue( $this->object_cache->flush() );
+		$this->assertFalse( $this->object_cache->get( $key, $group ) );
 	}
 
 	/**
@@ -114,13 +100,13 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$group = 'group';
 		$key   = 0;
 
-		$this->assertTrue( wp_cache_add( $key, $data, $group ) );
-		$this->assertEquals( $data, wp_cache_get( $key, $group ) );
-		$this->assertEquals( $data, wp_cache_get( $key, $group, false, $found ) );
+		$this->assertTrue( $this->object_cache->add( $key, $data, $group ) );
+		$this->assertEquals( $data, $this->object_cache->get( $key, $group ) );
+		$this->assertEquals( $data, $this->object_cache->get( $key, $group, false, $found ) );
 		$this->assertTrue( $found );
 
-		$this->assertFalse( wp_cache_get( 'test', $group ) );
-		$this->assertFalse( wp_cache_get( 'test', $group, false, $found ) );
+		$this->assertFalse( $this->object_cache->get( 'test', $group ) );
+		$this->assertFalse( $this->object_cache->get( 'test', $group, false, $found ) );
 		$this->assertFalse( $found );
 	}
 
@@ -128,12 +114,12 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$key   = 'key';
 		$group = 'group';
 
-		$this->assertTrue( wp_cache_add( $key, 10, $group ) );
-		$this->assertEquals( 13, wp_cache_incr( $key, 3, $group ) );
-		$this->assertEquals( 14, wp_cache_incr( $key, 1, $group ) );
-		$this->assertEquals( 14, wp_cache_get( $key, $group ) );
-		$this->assertEquals( 0, wp_cache_incr( $key, - 45, $group ) );
-		$this->assertEquals( 0, wp_cache_get( $key, $group ) );
+		$this->assertTrue( $this->object_cache->add( $key, 10, $group ) );
+		$this->assertEquals( 13, $this->object_cache->incr( $key, 3, $group ) );
+		$this->assertEquals( 14, $this->object_cache->incr( $key, 1, $group ) );
+		$this->assertEquals( 14, $this->object_cache->get( $key, $group ) );
+		$this->assertEquals( 0, $this->object_cache->incr( $key, - 45, $group ) );
+		$this->assertEquals( 0, $this->object_cache->get( $key, $group ) );
 	}
 
 	/**
@@ -145,11 +131,11 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$group = 'group';
 		$key   = 0;
 
-		$this->assertTrue( wp_cache_add( $key, $data, $group ) );
-		$this->assertTrue( wp_cache_replace( $key, 'test', $group ) );
-		$this->assertEquals( 'test', wp_cache_get( $key, $group ) );
-		$this->assertFalse( wp_cache_replace( 'nokey', $data, $group ) );
-		$this->assertFalse( wp_cache_get( 'nokey', $group ) );
+		$this->assertTrue( $this->object_cache->add( $key, $data, $group ) );
+		$this->assertTrue( $this->object_cache->replace( $key, 'test', $group ) );
+		$this->assertEquals( 'test', $this->object_cache->get( $key, $group ) );
+		$this->assertFalse( $this->object_cache->replace( 'nokey', $data, $group ) );
+		$this->assertFalse( $this->object_cache->get( 'nokey', $group ) );
 	}
 
 	/**
@@ -161,8 +147,8 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$group = 'group';
 		$key   = 0;
 
-		$this->assertTrue( wp_cache_set( $key, $data, $group ) );
-		$this->assertEquals( $data, wp_cache_get( $key, $group ) );
+		$this->assertTrue( $this->object_cache->set( $key, $data, $group ) );
+		$this->assertEquals( $data, $this->object_cache->get( $key, $group ) );
 	}
 
 	/**
@@ -171,19 +157,17 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideTestData
 	 */
 	public function test_wp_cache_switch_to_blog( $data ) {
-		global $multisite;
-		$multisite = true;
-		wp_cache_init();
-		$this->assertNull( wp_cache_switch_to_blog( 2 ) );
+		$this->object_cache = $this->create_object_cache( true );
+		$this->object_cache->switch_to_blog( 2 );
 		$group = 'group';
 		$key   = 'foo';
 
-		$this->assertTrue( wp_cache_add( $key, $data, $group ) );
-		$this->assertEquals( $data, wp_cache_get( $key, $group ) );
-		$this->assertNull( wp_cache_switch_to_blog( 3 ) );
-		$this->assertFalse( wp_cache_get( $key, $group ) );
-		$this->assertNull( wp_cache_switch_to_blog( 2 ) );
-		$this->assertEquals( $data, wp_cache_get( $key, $group ) );
+		$this->assertTrue( $this->object_cache->add( $key, $data, $group ) );
+		$this->assertEquals( $data, $this->object_cache->get( $key, $group ) );
+		$this->object_cache->switch_to_blog( 3 );
+		$this->assertFalse( $this->object_cache->get( $key, $group ) );
+		$this->object_cache->switch_to_blog( 2 );
+		$this->assertEquals( $data, $this->object_cache->get( $key, $group ) );
 	}
 
 	/**
@@ -192,20 +176,18 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideTestData
 	 */
 	public function test_wp_cache_add_global_groups( $data ) {
-		global $multisite;
-		$multisite = true;
-		wp_cache_init();
-		$group = 'group';
-		$key   = 'foo';
+		$this->object_cache = $this->create_object_cache( true );
+		$group              = 'group';
+		$key                = 'foo';
 
-		$this->assertNull( wp_cache_add_global_groups( $group ) );
-		$this->assertNull( wp_cache_switch_to_blog( 2 ) );
-		$this->assertTrue( wp_cache_add( $key, $data, $group ) );
-		$this->assertEquals( $data, wp_cache_get( $key, $group ) );
-		$this->assertNull( wp_cache_switch_to_blog( 3 ) );
-		$this->assertEquals( $data, wp_cache_get( $key, $group ) );
-		$this->assertNull( wp_cache_switch_to_blog( 2 ) );
-		$this->assertEquals( $data, wp_cache_get( $key, $group ) );
+		$this->object_cache->add_global_groups( $group );
+		$this->object_cache->switch_to_blog( 2 );
+		$this->assertTrue( $this->object_cache->add( $key, $data, $group ) );
+		$this->assertEquals( $data, $this->object_cache->get( $key, $group ) );
+		$this->object_cache->switch_to_blog( 3 );
+		$this->assertEquals( $data, $this->object_cache->get( $key, $group ) );
+		$this->object_cache->switch_to_blog( 2 );
+		$this->assertEquals( $data, $this->object_cache->get( $key, $group ) );
 	}
 
 	/**
@@ -214,59 +196,57 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideTestData
 	 */
 	public function test_wp_cache_add_non_persistent_groups( $data ) {
-		if ( $GLOBALS['wp_object_cache'] instanceof WP_Object_Cache ) {
-			$this->markTestSkipped( 'Test Skipped for In Memory Cache implementation' );
-
-			return;
-		}
-
 		$key = 'foo';
 
-		$this->assertNull( wp_cache_add_non_persistent_groups( 'temp' ) );
-		$this->assertTrue( wp_cache_add( $key, $data, 'temp' ) );
-		$this->assertEquals( $data, wp_cache_get( $key, 'temp' ) );
-		$this->assertTrue( wp_cache_add( $key, $data, 'group' ) );
-		$this->assertEquals( $data, wp_cache_get( $key, 'group' ) );
+		$this->object_cache->add_non_persistent_groups( 'temp' );
+		$this->assertTrue( $this->object_cache->add( $key, $data, 'temp' ) );
+		$this->assertEquals( $data, $this->object_cache->get( $key, 'temp' ) );
+		$this->assertTrue( $this->object_cache->add( $key, $data, 'group' ) );
+		$this->assertEquals( $data, $this->object_cache->get( $key, 'group' ) );
 		// Re-init the cache. This deletes the local cache but keeps the persistent one
-		wp_cache_init();
-		$this->assertFalse( wp_cache_get( $key, 'temp' ) );
-		$this->assertEquals( $data, wp_cache_get( $key, 'group' ) );
+		$this->object_cache = $this->create_object_cache();
+		$this->assertFalse( $this->object_cache->get( $key, 'temp' ) );
+		$this->assertEquals( $data, $this->object_cache->get( $key, 'group' ) );
 	}
 
 	public function test_wp_cache_reset() {
-		$this->assertNull( wp_cache_reset() );
+		$group = 'group';
+		$key   = 0;
+		$data  = 'some data';
+
+		$this->assertTrue( $this->object_cache->add( $key, $data, $group ) );
+		$this->object_cache->reset();
+		$this->assertFalse( $this->object_cache->get( $key, $group ) );
 	}
 
 	public function test_groups() {
 		$key = 'foo';
-		$this->assertTrue( wp_cache_add( $key, 'test1', 'group1' ) );
-		$this->assertTrue( wp_cache_add( $key, 'test2', 'group2' ) );
-		$this->assertEquals( 'test1', wp_cache_get( $key, 'group1' ) );
-		$this->assertEquals( 'test2', wp_cache_get( $key, 'group2' ) );
+		$this->assertTrue( $this->object_cache->add( $key, 'test1', 'group1' ) );
+		$this->assertTrue( $this->object_cache->add( $key, 'test2', 'group2' ) );
+		$this->assertEquals( 'test1', $this->object_cache->get( $key, 'group1' ) );
+		$this->assertEquals( 'test2', $this->object_cache->get( $key, 'group2' ) );
 
-		$this->assertTrue( wp_cache_set( $key, 'test12', 'group1' ) );
-		$this->assertTrue( wp_cache_set( $key, 'test22', 'group2' ) );
-		$this->assertEquals( 'test12', wp_cache_get( $key, 'group1' ) );
-		$this->assertEquals( 'test22', wp_cache_get( $key, 'group2' ) );
+		$this->assertTrue( $this->object_cache->set( $key, 'test12', 'group1' ) );
+		$this->assertTrue( $this->object_cache->set( $key, 'test22', 'group2' ) );
+		$this->assertEquals( 'test12', $this->object_cache->get( $key, 'group1' ) );
+		$this->assertEquals( 'test22', $this->object_cache->get( $key, 'group2' ) );
 
-		$this->assertTrue( wp_cache_delete( $key, 'group2' ) );
-		$this->assertFalse( wp_cache_get( $key, 'group2' ) );
-		$this->assertEquals( 'test12', wp_cache_get( $key, 'group1' ) );
+		$this->assertTrue( $this->object_cache->delete( $key, 'group2' ) );
+		$this->assertFalse( $this->object_cache->get( $key, 'group2' ) );
+		$this->assertEquals( 'test12', $this->object_cache->get( $key, 'group1' ) );
 
-		$this->assertTrue( wp_cache_replace( $key, 'test13', 'group1' ) );
-		$this->assertEquals( 'test13', wp_cache_get( $key, 'group1' ) );
-		$this->assertFalse( wp_cache_get( $key, 'group2' ) );
+		$this->assertTrue( $this->object_cache->replace( $key, 'test13', 'group1' ) );
+		$this->assertEquals( 'test13', $this->object_cache->get( $key, 'group1' ) );
+		$this->assertFalse( $this->object_cache->get( $key, 'group2' ) );
 	}
 
 	public function testSuspendCacheAddition() {
-		global $suspend_cache;
+		$group = 'group';
+		$key   = 0;
 
-		$suspend_cache = true;
-		$group         = 'group';
-		$key           = 0;
-
-		$this->assertFalse( wp_cache_add( $key, 'some data', $group ) );
-		$this->assertFalse( wp_cache_get( $key, $group ) );
+		$this->object_cache = $this->create_object_cache( false, true );
+		$this->assertFalse( $this->object_cache->add( $key, 'some data', $group ) );
+		$this->assertFalse( $this->object_cache->get( $key, $group ) );
 	}
 
 	/**

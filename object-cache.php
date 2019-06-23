@@ -59,6 +59,8 @@ if ( function_exists( 'wp_cache_add' ) ) {
 	}
 
 	function wp_cache_init() {
+		global $table_prefix;
+
 		if ( ! function_exists( 'apcu_fetch' ) ) {
 			$error = 'APCu is not configured correctly. Please refer to https://wordpress.org/extend/plugins/apcu/installation/ for instructions.';
 
@@ -71,7 +73,14 @@ if ( function_exists( 'wp_cache_add' ) ) {
 			}
 		}
 
-		$GLOBALS['wp_object_cache'] = new APCu_Object_Cache();
+		$GLOBALS['wp_object_cache'] = new APCu_Object_Cache(
+			DB_HOST . '.' . DB_NAME . '.' . $table_prefix,
+			is_multisite(),
+			get_current_blog_id(),
+			function () {
+				return wp_suspend_cache_addition();
+			}
+		);
 	}
 
 	function wp_cache_replace( $key, $data, $group = '', $expire = 0 ) {
@@ -126,12 +135,27 @@ class APCu_Object_Cache {
 	/** @var string */
 	private $blog_prefix = '';
 
-	public function __construct() {
-		global $table_prefix;
+	/** @var callable */
+	private $is_cache_addition_suspended;
 
-		$this->multisite   = is_multisite();
-		$this->blog_prefix = $this->multisite ? get_current_blog_id() . ':' : '';
-		$this->prefix      = DB_HOST . '.' . DB_NAME . '.' . $table_prefix;
+	/**
+	 * APCu_Object_Cache constructor.
+	 *
+	 * @param string   $prefix
+	 * @param bool     $multisite
+	 * @param int      $blog_id
+	 * @param callable $is_cache_addition_suspended
+	 */
+	public function __construct(
+		string $prefix,
+		bool $multisite,
+		int $blog_id,
+		callable $is_cache_addition_suspended
+	) {
+		$this->multisite                   = $multisite;
+		$this->blog_prefix                 = $this->multisite ? $blog_id . ':' : '';
+		$this->prefix                      = $prefix;
+		$this->is_cache_addition_suspended = $is_cache_addition_suspended;
 	}
 
 	/**
@@ -146,7 +170,7 @@ class APCu_Object_Cache {
 		$group = $this->get_group( $group );
 		$key   = $this->get_key( $group, $key );
 
-		if ( function_exists( 'wp_suspend_cache_addition' ) && wp_suspend_cache_addition() ) {
+		if ( call_user_func( $this->is_cache_addition_suspended ) ) {
 			return false;
 		}
 		if ( isset( $this->local_cache[ $group ][ $key ] ) ) {

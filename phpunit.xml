@@ -1,8 +1,9 @@
-<phpunit>
+<phpunit  bootstrap="vendor/autoload.php">
     <testsuites>
         <testsuite name="Project Test Suite">
             <file>object-cache-test.php</file>
             <file>object-cache-interface-test.php</file>
+            <file>object-cache-init-test.php</file>
         </testsuite>
     </testsuites>
     <filter>

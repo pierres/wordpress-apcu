@@ -1,11 +1,5 @@
 <?php
 
-/**
- * This is a PHPUnit test class.
- */
-
-require_once( __DIR__ . '/object-cache.php' );
-
 class ObjectCacheInterfaceTest extends \PHPUnit\Framework\TestCase {
 
 	/** @var APCu_Object_Cache|\PHPUnit\Framework\MockObject\MockObject */
