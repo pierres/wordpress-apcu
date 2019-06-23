@@ -4,7 +4,7 @@
  * This is a PHPUnit test class.
  */
 
-global $wp_object_cache, $table_prefix, $multisite;
+global $wp_object_cache, $table_prefix, $multisite, $suspend_cache;
 ! defined( 'DB_HOST' ) && define( 'DB_HOST', 'localhost' );
 ! defined( 'DB_NAME' ) && define( 'DB_NAME', 'WordPress' );
 ! defined( 'WP_CONTENT_DIR' ) && define( 'WP_CONTENT_DIR', '.' );
@@ -15,6 +15,9 @@ function is_multisite() {
 }
 
 function wp_suspend_cache_addition() {
+	global $suspend_cache;
+
+	return (bool) $suspend_cache;
 }
 
 function _deprecated_function() {
@@ -54,7 +57,6 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $data, wp_cache_get( $key, $group ) );
 		$this->assertFalse( wp_cache_add( $key, 'test', $group ) );
 		$this->assertEquals( $data, wp_cache_get( $key, $group ) );
-
 	}
 
 	public function test_wp_cache_close() {
@@ -254,6 +256,17 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$this->assertTrue( wp_cache_replace( $key, 'test13', 'group1' ) );
 		$this->assertEquals( 'test13', wp_cache_get( $key, 'group1' ) );
 		$this->assertFalse( wp_cache_get( $key, 'group2' ) );
+	}
+
+	public function testSuspendCacheAddition() {
+		global $suspend_cache;
+
+		$suspend_cache = true;
+		$group         = 'group';
+		$key           = 0;
+
+		$this->assertFalse( wp_cache_add( $key, 'some data', $group ) );
+		$this->assertFalse( wp_cache_get( $key, $group ) );
 	}
 
 	/**
