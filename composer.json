@@ -1,6 +1,6 @@
 {
   "require-dev": {
-    "phpunit/phpunit": "~5.7",
-    "wp-coding-standards/wpcs": "^0.10"
+    "phpunit/phpunit": "^7",
+    "wp-coding-standards/wpcs": "^1.2"
   }
 }

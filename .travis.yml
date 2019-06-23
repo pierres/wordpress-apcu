@@ -8,10 +8,6 @@ matrix:
       env: APCU_VERSION=5.1.15
     - php: 7.1
       env: APCU_VERSION=5.1.15
-    - php: 7.0
-      env: APCU_VERSION=5.1.15
-    - php: 5.6
-      env: APCU_VERSION=4.0.11
 
 install:
   - composer install

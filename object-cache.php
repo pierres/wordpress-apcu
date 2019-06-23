@@ -114,19 +114,19 @@ if ( function_exists( 'wp_cache_add' ) ) {
 
 class APCu_Object_Cache {
 
-	private $prefix = '';
-	private $local_cache = array();
-	private $global_groups = array();
+	private $prefix                = '';
+	private $local_cache           = array();
+	private $global_groups         = array();
 	private $non_persistent_groups = array();
-	private $multisite = false;
-	private $blog_prefix = '';
+	private $multisite             = false;
+	private $blog_prefix           = '';
 
 	public function __construct() {
 		global $table_prefix;
 
-		$this->multisite = is_multisite();
+		$this->multisite   = is_multisite();
 		$this->blog_prefix = $this->multisite ? get_current_blog_id() . ':' : '';
-		$this->prefix = DB_HOST . '.' . DB_NAME . '.' . $table_prefix;
+		$this->prefix      = DB_HOST . '.' . DB_NAME . '.' . $table_prefix;
 	}
 
 	private function get_group( $group ) {
@@ -143,7 +143,7 @@ class APCu_Object_Cache {
 
 	public function add( $key, $data, $group = 'default', $expire = 0 ) {
 		$group = $this->get_group( $group );
-		$key = $this->get_key( $group, $key );
+		$key   = $this->get_key( $group, $key );
 
 		if ( function_exists( 'wp_suspend_cache_addition' ) && wp_suspend_cache_addition() ) {
 			return false;
@@ -195,7 +195,7 @@ class APCu_Object_Cache {
 		}
 
 		$group = $this->get_group( $group );
-		$key = $this->get_key( $group, $key );
+		$key   = $this->get_key( $group, $key );
 
 		if ( isset( $this->local_cache[ $group ][ $key ] ) && $this->local_cache[ $group ][ $key ] - $offset >= 0 ) {
 			$this->local_cache[ $group ][ $key ] -= $offset;
@@ -217,7 +217,7 @@ class APCu_Object_Cache {
 
 	public function delete( $key, $group = 'default', $force = false ) {
 		$group = $this->get_group( $group );
-		$key = $this->get_key( $group, $key );
+		$key   = $this->get_key( $group, $key );
 
 		unset( $this->local_cache[ $group ][ $key ] );
 		if ( ! isset( $this->non_persistent_groups[ $group ] ) ) {
@@ -235,7 +235,7 @@ class APCu_Object_Cache {
 
 	public function get( $key, $group = 'default', $force = false, &$found = null ) {
 		$group = $this->get_group( $group );
-		$key = $this->get_key( $group, $key );
+		$key   = $this->get_key( $group, $key );
 
 		if ( ! $force && isset( $this->local_cache[ $group ][ $key ] ) ) {
 			$found = true;
@@ -266,7 +266,7 @@ class APCu_Object_Cache {
 		}
 
 		$group = $this->get_group( $group );
-		$key = $this->get_key( $group, $key );
+		$key   = $this->get_key( $group, $key );
 
 		if ( isset( $this->local_cache[ $group ][ $key ] ) && $this->local_cache[ $group ][ $key ] + $offset >= 0 ) {
 			$this->local_cache[ $group ][ $key ] += $offset;
@@ -288,7 +288,7 @@ class APCu_Object_Cache {
 
 	public function replace( $key, $data, $group = 'default', $expire = 0 ) {
 		$group = $this->get_group( $group );
-		$key = $this->get_key( $group, $key );
+		$key   = $this->get_key( $group, $key );
 
 		if ( isset( $this->non_persistent_groups[ $group ] ) ) {
 			if ( ! isset( $this->local_cache[ $group ][ $key ] ) ) {
@@ -318,7 +318,7 @@ class APCu_Object_Cache {
 
 	public function set( $key, $data, $group = 'default', $expire = 0 ) {
 		$group = $this->get_group( $group );
-		$key = $this->get_key( $group, $key );
+		$key   = $this->get_key( $group, $key );
 
 		if ( is_object( $data ) ) {
 			$this->local_cache[ $group ][ $key ] = clone $data;

@@ -1,7 +1,12 @@
 <phpunit>
-	<testsuites>
-		<testsuite>
-			<file>object-cache-test.php</file>
-		</testsuite>
-	</testsuites>
+    <testsuites>
+        <testsuite name="Project Test Suite">
+            <file>object-cache-test.php</file>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <file>object-cache.php</file>
+        </whitelist>
+    </filter>
 </phpunit>
