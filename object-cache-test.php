@@ -59,6 +59,8 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( 6, $this->object_cache->get( $key, $group ) );
 		$this->assertEquals( 0, $this->object_cache->decr( $key, 45, $group ) );
 		$this->assertEquals( 0, $this->object_cache->get( $key, $group ) );
+		$this->assertEquals( 1, $this->object_cache->decr( $key, - 1, $group ) );
+		$this->assertEquals( 1, $this->object_cache->get( $key, $group ) );
 	}
 
 	/**
@@ -96,7 +98,6 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideTestData
 	 */
 	public function test_wp_cache_get( $data ) {
-		// TODO: test force parameter
 		$group = 'group';
 		$key   = 0;
 
@@ -110,6 +111,20 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$this->assertFalse( $found );
 	}
 
+	/**
+	 * @param mixed $data
+	 *
+	 * @dataProvider provideTestData
+	 */
+	public function test_wp_cache_get_force( $data ) {
+		$group = 'group';
+		$key   = 0;
+
+		$this->assertTrue( $this->object_cache->add( $key, $data, $group ) );
+		$this->object_cache = $this->create_object_cache();
+		$this->assertEquals( $data, $this->object_cache->get( $key, $group, true ) );
+	}
+
 	public function test_wp_cache_incr() {
 		$key   = 'key';
 		$group = 'group';
@@ -119,6 +134,9 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( 14, $this->object_cache->incr( $key, 1, $group ) );
 		$this->assertEquals( 14, $this->object_cache->get( $key, $group ) );
 		$this->assertEquals( 0, $this->object_cache->incr( $key, - 45, $group ) );
+		$this->assertEquals( 0, $this->object_cache->get( $key, $group ) );
+		$this->assertTrue( $this->object_cache->set( $key, - 10, $group ) );
+		$this->assertEquals( 0, $this->object_cache->incr( $key, 1, $group ) );
 		$this->assertEquals( 0, $this->object_cache->get( $key, $group ) );
 	}
 
@@ -132,8 +150,10 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$key   = 0;
 
 		$this->assertTrue( $this->object_cache->add( $key, $data, $group ) );
-		$this->assertTrue( $this->object_cache->replace( $key, 'test', $group ) );
-		$this->assertEquals( 'test', $this->object_cache->get( $key, $group ) );
+		foreach ( [ 'test', [], new \StdClass() ] as $new_data ) {
+			$this->assertTrue( $this->object_cache->replace( $key, $new_data, $group ) );
+			$this->assertEquals( $new_data, $this->object_cache->get( $key, $group ) );
+		}
 		$this->assertFalse( $this->object_cache->replace( 'nokey', $data, $group ) );
 		$this->assertFalse( $this->object_cache->get( 'nokey', $group ) );
 	}
@@ -195,6 +215,32 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 	 *
 	 * @dataProvider provideTestData
 	 */
+	public function test_wp_cache_add_global_groups_as_array( $data ) {
+		$this->object_cache = $this->create_object_cache( true );
+		$groups             = [ 'group 1', 'group 2' ];
+		$key                = 'foo';
+
+		$this->object_cache->add_global_groups( $groups );
+		$this->object_cache->switch_to_blog( 2 );
+		foreach ( $groups as $group ) {
+			$this->assertTrue( $this->object_cache->add( $key, $data, $group ) );
+			$this->assertEquals( $data, $this->object_cache->get( $key, $group ) );
+		}
+		$this->object_cache->switch_to_blog( 3 );
+		foreach ( $groups as $group ) {
+			$this->assertEquals( $data, $this->object_cache->get( $key, $group ) );
+		}
+		$this->object_cache->switch_to_blog( 2 );
+		foreach ( $groups as $group ) {
+			$this->assertEquals( $data, $this->object_cache->get( $key, $group ) );
+		}
+	}
+
+	/**
+	 * @param mixed $data
+	 *
+	 * @dataProvider provideTestData
+	 */
 	public function test_wp_cache_add_non_persistent_groups( $data ) {
 		$key = 'foo';
 
@@ -203,9 +249,58 @@ class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $data, $this->object_cache->get( $key, 'temp' ) );
 		$this->assertTrue( $this->object_cache->add( $key, $data, 'group' ) );
 		$this->assertEquals( $data, $this->object_cache->get( $key, 'group' ) );
+		if ( is_int( $data ) ) {
+			if ( $data > 0 ) {
+				$this->assertEquals( $data + 1, $this->object_cache->incr( $key, 1, 'temp' ) );
+				$this->assertEquals( $data, $this->object_cache->decr( $key, 1, 'temp' ) );
+			} else {
+				$this->assertEquals( 0, $this->object_cache->incr( $key, 1, 'temp' ) );
+				$this->assertEquals( 0, $this->object_cache->decr( $key, 1, 'temp' ) );
+			}
+		}
+
+		$this->assertTrue( $this->object_cache->add( 'bar', $data, 'temp' ) );
+		$this->assertTrue( $this->object_cache->delete( 'bar', 'temp' ) );
+		$this->assertFalse( $this->object_cache->get( 'bar', 'temp' ) );
+
+		$this->assertTrue( $this->object_cache->set( 'bar', $data, 'temp' ) );
+		$this->assertTrue( $this->object_cache->delete( 'bar', 'temp' ) );
+		$this->assertFalse( $this->object_cache->get( 'bar', 'temp' ) );
+
+		if ( ! is_null( $data ) ) {
+			$this->assertTrue( $this->object_cache->add( 'bar', $data, 'temp' ) );
+			$this->assertTrue( $this->object_cache->replace( 'bar', 'test', 'temp' ) );
+			$this->assertEquals( 'test', $this->object_cache->get( 'bar', 'temp' ) );
+		}
+
 		// Re-init the cache. This deletes the local cache but keeps the persistent one
 		$this->object_cache = $this->create_object_cache();
 		$this->assertFalse( $this->object_cache->get( $key, 'temp' ) );
+		$this->assertEquals( $data, $this->object_cache->get( $key, 'group' ) );
+	}
+
+	/**
+	 * @param mixed $data
+	 *
+	 * @dataProvider provideTestData
+	 */
+	public function test_wp_cache_add_non_persistent_groups_as_array( $data ) {
+		$key    = 'foo';
+		$groups = [ 'temp 1', 'temp 2' ];
+
+		$this->object_cache = $this->create_object_cache();
+		$this->object_cache->add_non_persistent_groups( $groups );
+		foreach ( $groups as $group ) {
+			$this->assertTrue( $this->object_cache->add( $key, $data, $group ) );
+			$this->assertEquals( $data, $this->object_cache->get( $key, $group ) );
+		}
+		$this->assertTrue( $this->object_cache->add( $key, $data, 'group' ) );
+		$this->assertEquals( $data, $this->object_cache->get( $key, 'group' ) );
+		// Re-init the cache. This deletes the local cache but keeps the persistent one
+		$this->object_cache = $this->create_object_cache();
+		foreach ( $groups as $group ) {
+			$this->assertFalse( $this->object_cache->get( $key, $group ) );
+		}
 		$this->assertEquals( $data, $this->object_cache->get( $key, 'group' ) );
 	}
 
