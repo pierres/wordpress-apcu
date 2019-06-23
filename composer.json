@@ -1,4 +1,9 @@
 {
+  "type": "metapackage",
+  "require": {
+    "php": "^7.1",
+    "ext-apcu": "^5.1"
+  },
   "require-dev": {
     "phpunit/phpunit": "^7",
     "wp-coding-standards/wpcs": "^1.2"
