@@ -101,7 +101,7 @@ if ( function_exists( 'wp_cache_add' ) ) {
 	function wp_cache_add_non_persistent_groups( $groups ) {
 		global $wp_object_cache;
 
-		$wp_object_cache->wp_cache_add_non_persistent_groups( $groups );
+		$wp_object_cache->add_non_persistent_groups( $groups );
 	}
 
 	function wp_cache_reset() {
@@ -194,9 +194,9 @@ class APCu_Object_Cache {
 	}
 
 	/**
-	 * @param string $groups
+	 * @param string|array $groups
 	 */
-	public function add_global_groups( string $groups ): void {
+	public function add_global_groups( $groups ): void {
 		if ( is_array( $groups ) ) {
 			foreach ( $groups as $group ) {
 				$this->global_groups[ $group ] = true;
@@ -207,9 +207,9 @@ class APCu_Object_Cache {
 	}
 
 	/**
-	 * @param string $groups
+	 * @param string|array $groups
 	 */
-	public function wp_cache_add_non_persistent_groups( string $groups ): void {
+	public function add_non_persistent_groups( $groups ): void {
 		if ( is_array( $groups ) ) {
 			foreach ( $groups as $group ) {
 				$this->non_persistent_groups[ $group ] = true;

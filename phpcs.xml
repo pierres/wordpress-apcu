@@ -3,6 +3,7 @@
     <rule ref="WordPress-Core"/>
     <file>object-cache.php</file>
     <file>object-cache-test.php</file>
+    <file>object-cache-interface-test.php</file>
     <rule ref="WordPress.Files.FileName">
         <properties>
             <property name="strict_class_file_names" value="false"/>

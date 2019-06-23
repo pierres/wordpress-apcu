@@ -27,7 +27,7 @@ function get_current_blog_id() {
 	return 0;
 }
 
-require( __DIR__ . '/object-cache.php' );
+require_once( __DIR__ . '/object-cache.php' );
 
 class ObjectCacheTest extends \PHPUnit\Framework\TestCase {
 
