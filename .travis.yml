@@ -3,11 +3,11 @@ language: php
 matrix:
   include:
     - php: 7.3
-      env: APCU_VERSION=5.1.15
+      env: APCU_VERSION=5.1.16
     - php: 7.2
-      env: APCU_VERSION=5.1.15
+      env: APCU_VERSION=5.1.16
     - php: 7.1
-      env: APCU_VERSION=5.1.15
+      env: APCU_VERSION=5.1.16
 
 before_install:
   - yes "" | pecl install -f apcu-${APCU_VERSION}
