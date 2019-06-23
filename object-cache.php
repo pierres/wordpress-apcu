@@ -419,12 +419,6 @@ class APCu_Object_Cache {
 		return true;
 	}
 
-	public function stats(): void {
-		// Only implemented because the default cache class provides this.
-		// This method is never called.
-		echo '';
-	}
-
 	/**
 	 * @param int $blog_id
 	 */
